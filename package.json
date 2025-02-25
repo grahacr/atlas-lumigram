@@ -25,6 +25,7 @@
     "expo-status-bar": "~2.0.1",
     "expo-symbols": "~0.2.2",
     "expo-system-ui": "~4.0.8",
+    "expo-vector-icons": "^10.0.1",
     "expo-web-browser": "~14.0.2",
     "lottie-react-native": "7.1.0",
     "react": "18.3.1",
@@ -39,6 +40,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@types/expo": "^33.0.3",
+    "@types/qs": "^6.9.18",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",
     "react-test-renderer": "18.3.1",

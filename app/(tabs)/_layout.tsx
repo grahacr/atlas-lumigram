@@ -1,21 +1,17 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
-
-import { HapticTab } from "@/components/HapticTab";
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { LogoutComponent } from '@/components/LogOutComponent';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+const activeColor = "#1ED2AF";
+const inactiveColor = "#FEF9E6"
 
+
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
         headerShown: true,
         headerRight: () => <LogoutComponent></LogoutComponent>,
       }}>
@@ -23,38 +19,40 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+          <Ionicons name="home-outline" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={28} name="search-outline" color={color} />,
         }}
       />
       <Tabs.Screen
         name="add-post"
         options={{
           title: 'Add Post',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={28} name="add-outline" color={color} />,
         }}
       />
       <Tabs.Screen
         name="favorites"
         options={{
           title: 'Favorites',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={28} name="heart-outline" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile/index"
         options={{
           title: 'My Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={28} name="person-outline" color={color} />,
         }}
       />
-            <Tabs.Screen
+      <Tabs.Screen
         name="profile/[id]"
         options={{
           title: 'My Profile',
@@ -64,3 +62,4 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
