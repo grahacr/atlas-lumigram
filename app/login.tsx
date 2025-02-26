@@ -1,8 +1,10 @@
-import { Text, View, StyleSheet, Pressable, TextInput, Image, Keyboard, Button } from "react-native";
+import { Text, View, StyleSheet, Pressable, TextInput, Image } from "react-native";
 import { Link, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function LoginPage() {
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const router = useRouter();
 
@@ -20,6 +22,9 @@ export default function LoginPage() {
             style={styles.inputStyle}
             placeholder="Password"
             keyboardType="default"
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
         />
         <Pressable onPress={() => {
             router.replace("../(tabs)/");
@@ -65,7 +70,7 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         padding: 15,
         marginBottom: 10,
-        color: "#000",
+        color: "#FEF9E6",
     }
   });
 
