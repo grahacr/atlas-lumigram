@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router';
 import { LogoutComponent } from '@/components/LogOutComponent';
 
 const activeColor = "#1ED2AF";
-const inactiveColor = "#FEF9E6"
+const inactiveColor = "#00003C"
 
 
 export default function TabLayout() {
@@ -18,9 +18,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Home Feed',
           tabBarIcon: ({ color }) => (
-          <Ionicons name="home-outline" color={color} />
+          <Ionicons Ionicons size={28} name="home-outline" color={color} />
           ),
         }}
       />
