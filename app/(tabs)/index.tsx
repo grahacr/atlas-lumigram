@@ -18,6 +18,7 @@ export default function HomeScreen() {
   const createDoubleTapGesture = (id: string) => {
     return Gesture.Tap()
       .maxDuration(300)
+      .numberOfTaps(2)
       .onEnd(() => handleDoubleTap(id))
       .runOnJS(true);
   };
@@ -42,7 +43,7 @@ export default function HomeScreen() {
             const doubleTapGesture = createDoubleTapGesture(item.id);
             const longPressGesture = createLongPressGesture(item.id);
 
-            const combinedGestures = Gesture.Simultaneous(longPressGesture, doubleTapGesture);
+            const combinedGestures = Gesture.Exclusive(longPressGesture, doubleTapGesture);
               
             return (
                 <GestureDetector gesture={combinedGestures}>
