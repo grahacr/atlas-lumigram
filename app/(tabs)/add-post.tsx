@@ -3,10 +3,14 @@ import { View, Image, Button, Pressable, Alert, StyleSheet, Text} from "react-na
 import { TextInput } from "react-native-gesture-handler";
 import * as ImagePicker from 'expo-image-picker';
 import storage from "@/lib/storage";
+import firestore from "@/lib/firestore";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function AddPostPage() {
     const [caption, setCaption] = useState<string>('');
     const [image, setImage] = useState<string | undefined>(undefined);
+    const auth = useAuth();
+
     const chooseImage = async () => {
         let permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -31,6 +35,14 @@ export default function AddPostPage() {
         storage.upload(image, saveName)
         const { downloadUrl, metadata } = await storage.upload(image, saveName);
         console.log(downloadUrl);
+
+        firestore.addPost({
+            caption,
+            image: downloadUrl,
+            createdAt: new Date(),
+            createdBy: auth.user?.uid!!,
+        })
+
         alert('post added!');
     };
 
