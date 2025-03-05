@@ -1,13 +1,26 @@
 import { Text, View, StyleSheet, Pressable, TextInput, Image } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
 
 
 export default function RegisterPage() {
     const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
-    
+    const { register }= useAuth();
+
+    async function handleRegister() {
+        try {
+            await register(email, password)
+            router.replace('/(tabs)')
+            alert(`Creating account with ${email} and ${password}`);
+        } catch (err) {
+            alert('Unable to create account')
+        }
+    }
+
     return (
     <View style={styles.pageStyle}>
         <Image source={require('../assets/images/logo.png')} style={styles.imageLogo} resizeMode="contain" />
@@ -16,6 +29,8 @@ export default function RegisterPage() {
                 style={styles.inputStyle}
                 placeholder="Email"
                 keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
             />
             <TextInput
                 style={styles.inputStyle}
@@ -25,9 +40,7 @@ export default function RegisterPage() {
                 value={password}
                 onChangeText={setPassword}
             />
-            <Pressable onPress={() => {
-                router.replace("../(tabs)/");
-                }} style={styles.signIn}>
+            <Pressable onPress={handleRegister} style={styles.signIn}>
                 <Text style={styles.profileText}>Create Account</Text>
             </Pressable>
             <View style={{alignItems: "center", justifyContent: "center"}}>
