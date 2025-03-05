@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { View } from "react-native";
+import { AuthProvider } from '@/components/AuthProvider';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,6 +28,7 @@ export default function RootLayout() {
   }
 
   return (
+    <AuthProvider>
     <GestureHandlerRootView style={{ flex: 1 }}>
     <View style={{ flex: 1 }}>
       <Stack>
@@ -37,6 +39,7 @@ export default function RootLayout() {
       <StatusBar style="auto" />
     </View>
     </GestureHandlerRootView>
+    </AuthProvider>
   );
 }
 

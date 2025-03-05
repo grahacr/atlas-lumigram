@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Image, Button, Pressable, Alert, StyleSheet, Text} from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import * as ImagePicker from 'expo-image-picker';
+import storage from "@/lib/storage";
 
 export default function AddPostPage() {
     const [caption, setCaption] = useState<string>('');
@@ -24,8 +25,13 @@ export default function AddPostPage() {
         }
     };
 
-    const handleSave = () => {
-        Alert.alert('Post saved!', `Caption: ${caption}`);
+    async function handleSave() {
+        if (!image) return;
+        const saveName = image?.split("/").pop() as string;
+        storage.upload(image, saveName)
+        const { downloadUrl, metadata } = await storage.upload(image, saveName);
+        console.log(downloadUrl);
+        alert('post added!');
     };
 
     const handleReset = () => {
