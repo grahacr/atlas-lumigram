@@ -39,10 +39,7 @@ export default function LoginPage() {
             value={password}
             onChangeText={setPassword}
         />
-        <Pressable onPress={() => {
-            login();
-            router.replace("../(tabs)/");
-            }} style={styles.signIn}>
+        <Pressable onPress={login} style={styles.signIn}>
             <Text style={styles.profileText}>Sign In</Text>
         </Pressable>
         <Link href="/register" replace>

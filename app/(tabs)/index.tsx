@@ -3,10 +3,12 @@ import { FlashList } from "@shopify/flash-list";
 import { homeFeed } from "@/placeholder";
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function HomeScreen() {
   const [visibleCaption, setVisibleCaption] = useState<{ [key: string]: boolean}>({});
-
+  const auth = useAuth();
+  
   const handleLongPress = (id: string) => {
     setVisibleCaption((prev) => ({ ...prev, [id]: true}));
   };
