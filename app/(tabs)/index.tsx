@@ -3,7 +3,8 @@ import { FlashList } from "@shopify/flash-list";
 import  firestore  from "@/lib/firestore"
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useCallback, useEffect, useState } from "react";
-import { getDocs, collection, query, orderBy, onSnapshot, QuerySnapshot, limit, startAfter } from "firebase/firestore";
+import { getDocs, collection, query, orderBy, limit, startAfter } from "firebase/firestore";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function HomeScreen() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -12,6 +13,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastVisible, setLastVisible] = useState<any>(null);
   const [hasMore, setHasMore] = useState(true);
+  const { user } = useAuth();
 
   const fetchPosts = useCallback(async (isRefresh = false) => {
     if (loading) return;
@@ -45,7 +47,7 @@ export default function HomeScreen() {
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
       setLoading(false);
       setRefreshing(false);
-  }, [lastVisible, loading]);
+  }, [lastVisible, loading, user]);
 
 
   useEffect(() => {
@@ -56,15 +58,20 @@ export default function HomeScreen() {
     setVisibleCaption((prev) => ({ ...prev, [id]: true}));
   };
 
-  const handleDoubleTap = (id: string) => {
-    Alert.alert('favorited!');
+  const handleDoubleTap = (postId: string) => {
+    if (user) {
+      firestore.addFavorite(user.uid, postId);
+      Alert.alert('favorited!');
+    } else {
+      Alert.alert('please log in to favorite posts');
+    }
   };
 
-  const createDoubleTapGesture = (id: string) => {
+  const createDoubleTapGesture = (postId: string) => {
     return Gesture.Tap()
       .maxDuration(300)
       .numberOfTaps(2)
-      .onEnd(() => handleDoubleTap(id))
+      .onEnd(() => handleDoubleTap(postId))
       .runOnJS(true);
   };
 
