@@ -1,25 +1,51 @@
 import { Image, StyleSheet, Alert, View, Text } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { homeFeed } from "@/placeholder";
+import  firestore  from "@/lib/firestore"
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function FavoritesPage() {
+
+  const [posts, setPosts] = useState<any[]>([]);
   const [visibleCaption, setVisibleCaption] = useState<{ [key: string]: boolean}>({});
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const { user } = useAuth();
+  
+  const fetchFavoritePosts = useCallback(async (isRefresh = false) => {
+    if (loading || !user) return;
+      setLoading(true);
+      
+      try {
+        const favoritePosts = await firestore.getFavorites(user.uid);
+        
+        if (isRefresh) {
+          setPosts(favoritePosts);
+          setHasMore(true);
+        } else {
+          setPosts(prevPosts => [...prevPosts, ...favoritePosts]);
+        }
+        if (favoritePosts.length < 10) {
+          setHasMore(false);
+        }
+      } catch (error) {
+        console.error("error fetching favorites for user", error);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    }, [loading, user]);
+  
+    useEffect(() => {
+      if (user) {
+        fetchFavoritePosts(true);
+      }
+    }, [user, fetchFavoritePosts]);
 
   const handleLongPress = (id: string) => {
     setVisibleCaption((prev) => ({ ...prev, [id]: true}));
-  };
-
-  const handleDoubleTap = (id: string) => {
-    Alert.alert('favorited!');
-  };
-
-  const createDoubleTapGesture = (id: string) => {
-    return Gesture.Tap()
-      .maxDuration(300)
-      .onEnd(() => handleDoubleTap(id))
-      .runOnJS(true);
   };
 
   const createLongPressGesture = (id: string) => {
@@ -31,21 +57,16 @@ export default function FavoritesPage() {
       .runOnJS(true);
     };
 
-  const data = homeFeed;
   return (
     <View style={{ flex: 1 }}>
         <FlashList
-          data={data}
+          data={posts}
           keyExtractor={(item) => item.id}
-          extraData={visibleCaption}
           renderItem={({ item }) => {
-            const doubleTapGesture = createDoubleTapGesture(item.id);
             const longPressGesture = createLongPressGesture(item.id);
-
-            const combinedGestures = Gesture.Simultaneous(longPressGesture, doubleTapGesture);
               
             return (
-                <GestureDetector gesture={combinedGestures}>
+                <GestureDetector gesture={longPressGesture}>
                   <View style={styles.itemContainer}>
                     <Image
                       source={{ uri: item.image }}
@@ -60,6 +81,16 @@ export default function FavoritesPage() {
               );
             }}
             estimatedItemSize={200}
+            onEndReached={() => {
+              if (hasMore) fetchFavoritePosts();
+            }}
+            onEndReachedThreshold={0.1}
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchFavoritePosts(true)
+            }}
+            extraData={Object.keys(visibleCaption)}
           />
           </View>
         );

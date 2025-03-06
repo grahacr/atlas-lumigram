@@ -1,6 +1,6 @@
 // firestore functions
 import { db } from "@/firebaseConfig";
-import { addDoc, collection, doc, setDoc, getDoc, Timestamp, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc, getDoc, getDocs, query, where } from "firebase/firestore";
 
 type Post = {
     caption: string;
@@ -32,8 +32,16 @@ async function addFavorite(userId: string, postId: string) {
 async function getFavorites(userId: string) {
     const favoritesRef = collection(db, 'users', userId, 'favorites');
     const querySnapshot = await getDocs(favoritesRef);
-    const favoritesPost = querySnapshot.docs.map(doc => doc.data());
-    return favoritesPost;
+    
+    const favoritePostsIds = querySnapshot.docs.map(doc => doc.data().postId);
+    
+    const postsQuery = query(collection(db, "posts"), where("__name__", "in", favoritePostsIds));
+    const postSnapshot = await getDocs(postsQuery);
+    const favoritedPosts = postSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+    }));
+    return favoritedPosts;
 }
 
 export default {
