@@ -16,5 +16,5 @@ async function addPost(post: Post) {
 }
 
 export default {
-    addPost,
-}
+    addPost, posts, db,
+};

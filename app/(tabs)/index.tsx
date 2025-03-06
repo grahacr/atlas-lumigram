@@ -1,13 +1,56 @@
 import { Image, StyleSheet, Alert, View, Text } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { homeFeed } from "@/placeholder";
+import  firestore  from "@/lib/firestore"
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useState } from "react";
-import { useAuth } from "@/components/AuthProvider";
+import { useCallback, useEffect, useState } from "react";
+import { getDocs, collection, query, orderBy, onSnapshot, QuerySnapshot, limit, startAfter } from "firebase/firestore";
 
 export default function HomeScreen() {
+  const [posts, setPosts] = useState<any[]>([]);
   const [visibleCaption, setVisibleCaption] = useState<{ [key: string]: boolean}>({});
-  const auth = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastVisible, setLastVisible] = useState<any>(null);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchPosts = useCallback(async (isRefresh = false) => {
+    if (loading) return;
+    setLoading(true);
+
+    const q = isRefresh
+      ? query(collection(firestore.db, "posts"), orderBy("createdAt", "desc"), limit(10))
+      : query(
+        collection(firestore.db, "posts"),
+        orderBy("createdAt", "desc"),
+        startAfter(lastVisible),
+        limit(10)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      const fetchedPosts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      if (isRefresh) {
+        setPosts(fetchedPosts);
+        setHasMore(true);
+      } else {
+        setPosts(prevPosts => [...prevPosts, ...fetchedPosts]);
+      }
+      if (fetchedPosts.length < 10) {
+        setHasMore(false);
+      }
+      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+      setLoading(false);
+      setRefreshing(false);
+  }, [lastVisible, loading]);
+
+
+  useEffect(() => {
+    fetchPosts(true);
+  }, [fetchPosts]);
   
   const handleLongPress = (id: string) => {
     setVisibleCaption((prev) => ({ ...prev, [id]: true}));
@@ -34,11 +77,10 @@ export default function HomeScreen() {
       .runOnJS(true);
     };
 
-  const data = homeFeed;
   return (
     <View style={{ flex: 1 }}>
         <FlashList
-          data={data}
+          data={posts}
           keyExtractor={(item) => item.id}
           extraData={visibleCaption}
           renderItem={({ item }) => {
@@ -63,6 +105,15 @@ export default function HomeScreen() {
               );
             }}
             estimatedItemSize={200}
+            onEndReached={() => {
+              if (hasMore) fetchPosts();
+            }}
+            onEndReachedThreshold={0.1}
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchPosts(true);
+            }}
           />
           </View>
         );
